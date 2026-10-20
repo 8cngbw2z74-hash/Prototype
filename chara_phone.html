@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>CHARA PHONE</title>
+<style>
+:root{--ink:#18181d;--muted:#8c8c96;--line:#e8e8ed;--paper:#fff;--soft:#f5f5f8;--blue:#087ff5;--pink:#ff5b87}
+*{box-sizing:border-box}body{margin:0;background:#e9e9ef;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;min-height:100vh;display:grid;place-items:center}
+button,input,textarea{font:inherit}button{cursor:pointer;border:0}
+.phone{width:min(390px,100vw);height:min(844px,100dvh);min-height:600px;background:#fff;border:8px solid #17171b;border-radius:48px;overflow:hidden;position:relative;box-shadow:0 28px 80px #24243a30;isolation:isolate}
+.status{height:35px;display:flex;align-items:center;justify-content:space-between;padding:0 25px;font-size:12px;font-weight:700;background:#fff;position:absolute;top:0;left:0;right:0;z-index:20}
+.status .island{position:absolute;left:50%;top:7px;transform:translateX(-50%);width:94px;height:24px;background:#111;border-radius:20px}
+.status-icons{display:flex;gap:5px;align-items:center}
+.screen{position:absolute;inset:35px 0 0;background:#fff;overflow:hidden;display:none}.screen.active{display:flex;flex-direction:column}
+.home-screen{inset:0;background:linear-gradient(160deg,#f6d8df 0%,#e8d9f4 42%,#cbdcf4 100%);padding:62px 22px 34px}
+.home-top{display:flex;justify-content:space-between;align-items:center;color:#332b3b;font-size:13px;font-weight:650}
+.clock{font-size:68px;line-height:1;letter-spacing:-4px;font-weight:300;text-align:center;margin-top:45px;color:#32283a}
+.date{text-align:center;margin-top:9px;font-size:15px;color:#514253}
+.widget{margin:32px 0 20px;padding:16px;border:1px solid #ffffff80;background:#ffffff70;backdrop-filter:blur(18px);border-radius:23px;display:flex;justify-content:space-between;align-items:center}
+.widget small{color:#6d6070}.widget strong{display:block;font-size:16px;margin-top:5px}.widget .avatar{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff8;font-size:25px}
+.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 13px;margin-top:17px}
+.app{background:transparent;color:#2d2632;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;min-width:0}
+.app-icon{width:57px;height:57px;border-radius:17px;display:grid;place-items:center;font-size:28px;box-shadow:0 5px 12px #4a36521a}
+.app span:last-child{font-size:11px;text-shadow:0 1px 3px #ffffff70}
+.messages-icon{background:linear-gradient(#71e17d,#2cba59)}.photos-icon{background:linear-gradient(145deg,#fff,#f1edf5)}.social-icon{background:linear-gradient(145deg,#ffb2ca,#f35d8e)}.notes-icon{background:linear-gradient(#fff,#f2d75b)}.music-icon{background:linear-gradient(145deg,#3b3b47,#111);color:white}.settings-icon{background:linear-gradient(#d8dce5,#9298a6)}
+.dock{position:absolute;bottom:22px;left:18px;right:18px;background:#ffffff70;border:1px solid #ffffff80;backdrop-filter:blur(20px);border-radius:25px;padding:12px;display:flex;justify-content:space-around}
+.dock .app-icon{width:53px;height:53px}
+.app-header{height:55px;flex-shrink:0;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 17px;background:#fff}
+.app-header h2{font-size:17px;margin:0;font-weight:750}.back{background:none;color:var(--blue);font-size:15px;padding:8px 0}.header-action{background:none;color:var(--blue);font-size:14px}
+.content{overflow-y:auto;flex:1;overscroll-behavior:contain}.muted{color:var(--muted)}.tiny{font-size:12px}
+.chat-row{display:flex;gap:12px;align-items:center;padding:13px 17px;border-bottom:1px solid #f0f0f3;width:100%;background:#fff;text-align:left}
+.avatar{width:48px;height:48px;border-radius:50%;background:#e8dff6;display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.chat-info{flex:1;min-width:0}.chat-title{display:flex;justify-content:space-between;gap:6px;font-weight:650;font-size:15px}.preview{font-size:13px;color:#85858e;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-view{display:flex;flex-direction:column;flex:1;min-height:0;background:#f7f7fa}.chat-person{display:flex;align-items:center;gap:9px;font-size:13px}.chat-person .avatar{width:33px;height:33px;font-size:16px}
+.bubbles{flex:1;overflow:auto;padding:17px 13px;display:flex;flex-direction:column;gap:9px}.day-label{text-align:center;font-size:11px;color:#999;margin:8px 0 13px}
+.bubble{max-width:78%;padding:10px 13px;border-radius:19px;font-size:14px;line-height:1.4;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.them{background:#e7e7ec;align-self:flex-start;border-bottom-left-radius:6px}.bubble.me{background:#1687fa;color:white;align-self:flex-end;border-bottom-right-radius:6px}
+.composer{display:flex;align-items:center;gap:8px;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:#f7f7fa;border-top:1px solid #e5e5eb}.composer input{flex:1;min-width:0;border:1px solid #dddde5;border-radius:20px;padding:10px 14px;background:white;outline:none}.send{background:var(--blue);color:white;border-radius:50%;width:34px;height:34px;font-size:18px}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}.photo{aspect-ratio:1;background:linear-gradient(135deg,#f7c6d4,#d3c5f4);display:grid;place-items:center;font-size:36px;position:relative;overflow:hidden}.photo:nth-child(3n+2){background:linear-gradient(135deg,#d8e8d5,#a9c6d6)}.photo:nth-child(3n){background:linear-gradient(135deg,#f5dfad,#f0b9a9)}.photo button{position:absolute;inset:0;background:transparent}
+.gallery-tabs{display:flex;justify-content:center;gap:36px;padding:14px;border-bottom:1px solid var(--line);font-size:12px;color:#777}.gallery-tabs strong{color:#222;border-bottom:2px solid #222;padding-bottom:5px}
+.photo-detail{position:absolute;inset:0;background:#111;color:white;z-index:30;display:none;flex-direction:column}.photo-detail.show{display:flex}.photo-detail .detail-top{padding:18px;display:flex;justify-content:space-between;align-items:center}.big-photo{flex:1;display:grid;place-items:center;font-size:100px;background:linear-gradient(135deg,#f7c6d4,#d3c5f4)}.photo-caption{padding:18px;font-size:13px;color:#ddd}
+.social-feed{background:#fff}.post{border-bottom:8px solid #f6f6f8}.post-head{display:flex;align-items:center;gap:10px;padding:13px}.post-head .avatar{width:38px;height:38px;font-size:17px}.post-user{font-weight:700;font-size:13px}.post-location{font-size:11px;color:#888;margin-top:3px}.post-image{height:300px;display:grid;place-items:center;font-size:80px;background:linear-gradient(135deg,#f7c6d4,#c8d8f5)}.post:nth-child(2) .post-image{background:linear-gradient(135deg,#f8dfb4,#e8b8c8)}.post-actions{display:flex;gap:14px;padding:11px 13px 5px}.icon-btn{background:none;font-size:24px;padding:0}.post-copy{padding:0 13px 14px;font-size:13px;line-height:1.5}.post-copy strong{margin-right:5px}.comment-list{margin-top:6px;color:#777}.comment-entry{display:flex;gap:8px;padding:10px 13px;border-top:1px solid #eee}.comment-entry input{border:0;outline:0;flex:1;min-width:0;font-size:13px}.comment-entry button{background:none;color:var(--blue);font-weight:650}
+.notes{padding:17px}.note-card{padding:16px;background:#fff8d5;border-radius:13px;margin-bottom:12px}.note-card h3{margin:0 0 8px;font-size:16px}.note-card p{font-size:13px;line-height:1.5;margin:0;color:#59564b}
+.home-indicator{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:120px;height:4px;border-radius:5px;background:#111;z-index:50;cursor:pointer}.home-indicator.light{background:#fff}
+.toast{position:absolute;z-index:60;left:50%;bottom:42px;transform:translateX(-50%);background:#24242b;color:#fff;padding:10px 14px;border-radius:22px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap}.toast.show{opacity:1}
+@media(max-width:500px){body{background:#fff}.phone{width:100vw;height:100dvh;min-height:500px;border:0;border-radius:0;box-shadow:none}.status{border-radius:0}.home-screen{padding-top:60px}.home-indicator{bottom:7px}}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="status"><span id="statusTime">9:41</span><span class="island"></span><span class="status-icons">▮▮▮ ◉ ▰</span></div>
+  <section class="screen home-screen active" id="home">
+    <div class="home-top"><span>화요일, 10월 20일</span><span>☾</span></div>
+    <div class="clock" id="clock">9:41</div><div class="date">오늘은 조금 특별한 날</div>
+    <div class="widget"><div><small>오늘의 메모</small><strong>잊지 말고 연락하기 💌</strong><small>마지막 업데이트 · 방금</small></div><div class="avatar">✉️</div></div>
+    <div class="app-grid">
+      <button class="app" data-open="messages"><span class="app-icon messages-icon">●</span><span>메시지</span></button>
+      <button class="app" data-open="photos"><span class="app-icon photos-icon">🌈</span><span>사진</span></button>
+      <button class="app" data-open="social"><span class="app-icon social-icon">◎</span><span>인스타그램</span></button>
+      <button class="app" data-open="notes"><span class="app-icon notes-icon">📝</span><span>메모</span></button>
+      <button class="app" data-open="music"><span class="app-icon music-icon">♫</span><span>음악</span></button>
+      <button class="app" data-open="settings"><span class="app-icon settings-icon">⚙</span><span>설정</span></button>
+    </div>
+    <div class="dock">
+      <button class="app" data-open="messages"><span class="app-icon messages-icon">●</span></button>
+      <button class="app" data-open="photos"><span class="app-icon photos-icon">🌈</span></button>
+      <button class="app" data-open="social"><span class="app-icon social-icon">◎</span></button>
+      <button class="app" data-open="music"><span class="app-icon music-icon">♫</span></button>
+    </div>
+  </section>
+
+  <section class="screen" id="messages">
+    <div class="app-header"><button class="back" data-home>‹ 홈</button><h2>메시지</h2><button class="header-action" id="newChat">편집</button></div>
+    <div class="content" id="chatList"></div>
+  </section>
+  <section class="screen" id="chat">
+    <div class="app-header"><button class="back" id="backChats">‹ 메시지</button><div class="chat-person"><div class="avatar" id="chatAvatar">🌙</div><strong id="chatName">민서</strong></div><button class="header-action" id="chatInfo">정보</button></div>
+    <div class="chat-view"><div class="bubbles" id="bubbles"></div><form class="composer" id="messageForm"><input id="messageInput" autocomplete="off" placeholder="iMessage" /><button class="send" aria-label="보내기">↑</button></form></div>
+  </section>
+  <section class="screen" id="photos">
+    <div class="app-header"><button class="back" data-home>‹ 홈</button><h2>사진</h2><button class="header-action" id="photoSelect">선택</button></div>
+    <div class="gallery-tabs"><strong>보관함</strong><span>앨범</span><span>추천</span></div>
+    <div class="content"><div style="padding:16px 13px 10px;font-size:22px;font-weight:750">최근 항목 <span class="muted" style="font-size:12px;font-weight:400">· 9개 항목</span></div><div class="photo-grid" id="photoGrid"></div></div>
+    <div class="photo-detail" id="photoDetail"><div class="detail-top"><button class="back" id="closePhoto" style="color:white">✕</button><span id="photoNumber">1 / 9</span><button class="header-action" id="photoMore" style="color:white">•••</button></div><div class="big-photo" id="bigPhoto">🌙</div><div class="photo-caption" id="photoCaption">최근에 저장한 사진</div></div>
+  </section>
+  <section class="screen" id="social">
+    <div class="app-header"><button class="back" data-home>‹ 홈</button><h2 style="font-family:Georgia,serif;font-style:italic">insta</h2><button class="header-action" id="newPost">＋</button></div>
+    <div class="content social-feed" id="feed"></div>
+  </section>
+  <section class="screen" id="notes">
+    <div class="app-header"><button class="back" data-home>‹ 홈</button><h2>메모</h2><button class="header-action" id="addNote">＋</button></div>
+    <div class="content notes" id="noteList"></div>
+  </section>
+  <section class="screen" id="music">
+    <div class="app-header"><button class="back" data-home>‹ 홈</button><h2>음악</h2><button class="header-action">•••</button></div>
+    <div class="content" style="padding:24px;text-align:center;background:linear-gradient(#f4e5f1,#fff)">
+      <div style="font-size:100px;margin:55px 0 25px">🎧</div><div class="muted tiny">지금 듣는 중</div><h2>Midnight Daydream</h2><p class="muted">The Velvet Moons</p>
+      <div style="height:4px;background:#ddd;border-radius:5px;margin:30px 0 8px"><div id="progress" style="height:4px;width:36%;background:#222;border-radius:5px"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#777"><span>1:12</span><span>3:48</span></div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:35px;margin-top:25px"><button class="icon-btn" id="prevTrack">⏮</button><button class="icon-btn" id="playTrack" style="font-size:48px">▶</button><button class="icon-btn" id="nextTrack">⏭</button></div><p class="muted tiny">데모 화면 · 실제 오디오는 재생되지 않아요</p>
+    </div>
+  </section>
+  <section class="screen" id="settings">
+    <div class="app-header"><button class="back" data-home>‹ 홈</button><h2>설정</h2><span></span></div>
+    <div class="content" style="background:#f4f4f8;padding:18px">
+      <div style="display:flex;align-items:center;gap:12px;background:white;border-radius:15px;padding:14px"><div class="avatar" style="width:56px;height:56px">🌙</div><div><strong>민서의 iPhone</strong><div class="muted tiny" style="margin-top:5px">Apple 계정 · 데모 프로필</div></div></div>
+      <h4 class="muted" style="margin:25px 8px 8px">일반</h4><div id="settingsRows"></div>
+      <h4 class="muted" style="margin:25px 8px 8px">사이트 설정</h4><div class="note-card" style="background:white"><strong>캐릭터 데이터</strong><p style="margin-top:6px">예시 이름, 메시지, 사진 이모지, 게시물은 HTML 파일의 DATA 영역에서 수정할 수 있어요.</p></div>
+    </div>
+  </section>
+  <div class="home-indicator" id="homeIndicator" title="홈으로"></div><div class="toast" id="toast"></div>
+</div>
+<script>
+const DATA = {
+  chats: [
+    {id:"minseo",name:"민서",emoji:"🌙",time:"방금",preview:"오늘 밤에 잠깐 볼래?",messages:[{from:"them",text:"집 잘 들어갔어?"},{from:"me",text:"응! 방금 도착했어"},{from:"them",text:"다행이다. 오늘 재밌었어 🌙"},{from:"me",text:"나도 ㅋㅋ 다음에 또 보자"},{from:"them",text:"오늘 밤에 잠깐 볼래?"}]},
+    {id:"jun",name:"준",emoji:"🧸",time:"오후 8:12",preview:"사진 보내줘!!",messages:[{from:"them",text:"아까 찍은 사진 너무 궁금해"},{from:"them",text:"사진 보내줘!!"}]},
+    {id:"group",name:"우리들의 비밀",emoji:"🪩",time:"오후 6:40",preview:"유나: 내일 늦지 마세요",messages:[{from:"them",text:"유나: 내일 늦지 마세요"},{from:"me",text:"노력은 해볼게"},{from:"them",text:"유나: 노력 말고 약속."}]},
+    {id:"yuna",name:"유나",emoji:"🍒",time:"어제",preview:"너한테 할 말 있어",messages:[{from:"them",text:"너한테 할 말 있어"},{from:"me",text:"뭔데? 무서운데"},{from:"them",text:"내일 만나서 말해줄게 🙃"}]}
+  ],
+  photos:[
+    {emoji:"🌙",caption:"늦은 밤, 집에 가는 길"},{emoji:"☕",caption:"좋아하는 카페에서"},{emoji:"🎧",caption:"오늘의 플레이리스트"},
+    {emoji:"🌷",caption:"선물 받은 꽃"},{emoji:"🪞",caption:"오늘의 거울 셀카"},{emoji:"🌆",caption:"해 질 무렵"},
+    {emoji:"🍰",caption:"달달한 디저트"},{emoji:"🫧",caption:"아무것도 안 한 오후"},{emoji:"✨",caption:"기억해 두고 싶은 순간"}
+  ],
+  posts:[
+    {user:"minseo.archive",name:"민서",emoji:"🌙",image:"🌆",likes:248,caption:"오늘의 하늘은 오래 기억하고 싶다.",comments:["색감 너무 예뻐","어디야? 다음에 같이 가자!"]},
+    {user:"jun.zip",name:"준",emoji:"🧸",image:"☕",likes:96,caption:"커피와 음악이면 충분한 오후 ☕",comments:["여기 분위기 좋다","다음엔 나도 데려가"]},
+    {user:"yuna.jpg",name:"유나",emoji:"🍒",image:"🌷",likes:173,caption:"작은 것들을 오래 좋아하는 사람.",comments:["너랑 잘 어울려 🌷"]}
+  ],
+  notes:[
+    {title:"오늘 할 일",body:"□ 답장하기\\n□ 사진 정리하기\\n□ 좋아하는 노래 듣기"},
+    {title:"기억해 둘 것",body:"민서가 좋아하는 건 라벤더 향과 밤 산책. 다음에 만날 때 잊지 말기."},
+    {title:"가사 메모",body:"너의 밤이 너무 길어지지 않도록\\n작은 별 하나를 남겨 둘게."}
+  ]
+};
+let activeChat = null, currentPhoto = 0, toastTimer;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),1800)}
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===id));$("#homeIndicator").classList.toggle("light",id==="photos"&&$("#photoDetail").classList.contains("show"));if(id==="messages")renderChats();if(id==="photos")renderPhotos();if(id==="social")renderFeed();if(id==="notes")renderNotes()}
+function home(){ $("#photoDetail").classList.remove("show");showScreen("home")}
+document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>showScreen(b.dataset.open)));
+document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",home));
+$("#homeIndicator").addEventListener("click",home);
+function renderChats(){const list=$("#chatList");list.innerHTML=DATA.chats.map(c=>`<button class="chat-row" data-chat="${c.id}"><div class="avatar">${c.emoji}</div><div class="chat-info"><div class="chat-title"><span>${esc(c.name)}</span><span class="muted tiny">${esc(c.time)}</span></div><div class="preview">${esc(c.preview)}</div></div><span class="muted">›</span></button>`).join("");list.querySelectorAll("[data-chat]").forEach(b=>b.onclick=()=>openChat(b.dataset.chat))}
+function openChat(id){activeChat=DATA.chats.find(c=>c.id===id);$("#chatName").textContent=activeChat.name;$("#chatAvatar").textContent=activeChat.emoji;renderBubbles();showScreen("chat")}
+function renderBubbles(){const box=$("#bubbles");box.innerHTML='<div class="day-label">오늘</div>'+activeChat.messages.map(m=>`<div class="bubble ${m.from==="me"?"me":"them"}">${esc(m.text)}</div>`).join("");box.scrollTop=box.scrollHeight}
+$("#backChats").onclick=()=>showScreen("messages");
+$("#messageForm").addEventListener("submit",e=>{e.preventDefault();const input=$("#messageInput"),text=input.value.trim();if(!text||!activeChat)return;activeChat.messages.push({from:"me",text});activeChat.preview=text;activeChat.time="방금";input.value="";renderBubbles()});
+$("#newChat").onclick=()=>toast("대화 목록을 길게 눌러 편집하는 기능은 데모예요");
+$("#chatInfo").onclick=()=>toast("캐릭터: "+(activeChat?.name||""));
+function renderPhotos(){const grid=$("#photoGrid");grid.innerHTML=DATA.photos.map((p,i)=>`<div class="photo"><span>${p.emoji}</span><button aria-label="사진 열기" data-photo="${i}"></button></div>`).join("");grid.querySelectorAll("[data-photo]").forEach(b=>b.onclick=()=>openPhoto(+b.dataset.photo))}
+function openPhoto(i){currentPhoto=i;const p=DATA.photos[i];$("#bigPhoto").textContent=p.emoji;$("#photoCaption").textContent=p.caption;$("#photoNumber").textContent=(i+1)+" / "+DATA.photos.length;$("#photoDetail").classList.add("show");$("#homeIndicator").classList.add("light")}
+$("#closePhoto").onclick=()=>{$("#photoDetail").classList.remove("show");$("#homeIndicator").classList.remove("light")};
+$("#photoMore").onclick=()=>toast("사진 옵션은 데모예요");$("#photoSelect").onclick=()=>toast("사진을 눌러 크게 볼 수 있어요");
+function renderFeed(){const feed=$("#feed");feed.innerHTML=DATA.posts.map((p,i)=>`<article class="post"><div class="post-head"><div class="avatar">${p.emoji}</div><div style="flex:1"><div class="post-user">${esc(p.user)}</div><div class="post-location">원래 있던 곳 · ${esc(p.name)}</div></div><button class="header-action" data-more="${i}">•••</button></div><div class="post-image">${p.image}</div><div class="post-actions"><button class="icon-btn" data-like="${i}" aria-label="좋아요">${p.liked?"❤️":"♡"}</button><button class="icon-btn" data-comment="${i}" aria-label="댓글">♧</button><button class="icon-btn" data-save="${i}" aria-label="저장">♧</button><span style="margin-left:auto">⌁</span></div><div class="post-copy"><strong>${p.likes+(p.liked?1:0)} likes</strong><div><strong>${esc(p.user)}</strong>${esc(p.caption)}</div><div class="comment-list" id="comments-${i}">${p.comments.map(c=>`<div>${esc(c)}</div>`).join("")}<div style="color:#999;margin-top:4px">댓글 ${p.comments.length}개 모두 보기</div></div></div><form class="comment-entry" data-comment-form="${i}"><span>☺</span><input placeholder="댓글 달기..." aria-label="댓글 입력"/><button>게시</button></form></article>`).join("");
+feed.querySelectorAll("[data-like]").forEach(b=>b.onclick=()=>{const p=DATA.posts[+b.dataset.like];p.liked=!p.liked;renderFeed()});
+feed.querySelectorAll("[data-comment]").forEach(b=>{b.onclick=()=>{const f=feed.querySelector(`[data-comment-form="${b.dataset.comment}"] input`);f.focus()}});
+feed.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>toast("게시물을 저장했어요"));
+feed.querySelectorAll("[data-more]").forEach(b=>b.onclick=()=>toast("게시물 메뉴"));
+feed.querySelectorAll("[data-comment-form]").forEach(f=>f.onsubmit=e=>{e.preventDefault();const i=+f.dataset.commentForm,input=f.querySelector("input"),v=input.value.trim();if(!v)return;DATA.posts[i].comments.push(v);renderFeed();toast("댓글을 남겼어요")})}
+$("#newPost").onclick=()=>{const caption=prompt("게시물에 적을 내용을 입력해 주세요.");if(caption===null)return;DATA.posts.unshift({user:"minseo.archive",name:"민서",emoji:"🌙",image:"💌",likes:0,caption,comments:[]});renderFeed();toast("새 게시물을 추가했어요")};
+function renderNotes(){$("#noteList").innerHTML=DATA.notes.map((n,i)=>`<div class="note-card"><h3>${esc(n.title)}</h3><p>${esc(n.body).replace(/\n/g,"<br>")}</p></div>`).join("")}
+$("#addNote").onclick=()=>{const title=prompt("메모 제목");if(!title)return;const body=prompt("메모 내용")||"";DATA.notes.unshift({title,body});renderNotes();toast("메모를 추가했어요")};
+$("#settingsRows").innerHTML=["비행기 모드","Wi-Fi","Bluetooth","배경화면","알림"].map((t,i)=>`<button class="chat-row" data-setting="${esc(t)}" style="border-radius:${i===0?"12px 12px 0 0":i===4?"0 0 12px 12px":"0"};margin:0"><span style="width:28px;text-align:center">${["✈️","◉","ᛒ","🖼️","🔔"][i]}</span><span style="flex:1;text-align:left">${t}</span><span class="muted">›</span></button>`).join("");
+$("#settingsRows").querySelectorAll("[data-setting]").forEach(b=>b.onclick=()=>toast(b.dataset.setting+" · 데모 설정"));
+let playing=false;$("#playTrack").onclick=()=>{playing=!playing;$("#playTrack").textContent=playing?"Ⅱ":"▶";toast(playing?"재생 중 (화면 데모)":"일시 정지")};$("#prevTrack").onclick=()=>toast("이전 곡");$("#nextTrack").onclick=()=>toast("다음 곡");
+$("#clock").textContent="9:41";$("#statusTime").textContent="9:41";
+renderChats();renderPhotos();renderFeed();renderNotes();
+</script>
+</body>
+</html>
